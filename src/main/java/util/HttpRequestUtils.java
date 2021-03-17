@@ -13,6 +13,37 @@ import com.google.common.collect.Maps;
 public class HttpRequestUtils {
     private static final String DEFAULT_LOCATION = "/index.html";
     
+    public static int parseContentLength(String value) {
+    	if(value.contains("Content-Length")) {
+			return Integer.parseInt(value.split(":")[1].trim());
+		}
+    	
+    	return 0;
+    }
+    
+    public static String parseRequestPath(String url) {
+    	int index = url.indexOf('?');
+    	if(index < 0) {
+    		return url;
+    	}
+    	
+		return url.substring(0, index);
+    }
+    
+    public static String parseParams(String url) {
+    	int index = url.indexOf('?');
+    	if(index < 0) {
+    		return "";
+    	}
+		return url.substring(index+1);
+    }
+    
+    public static String parseMethod(String url) {
+		String[] token = url.split(" ");
+
+		return token[0];
+    }
+    
 	public static String parseLocation(String url) {
 		String result;
 		String[] token = url.split(" ");

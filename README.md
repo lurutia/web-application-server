@@ -23,7 +23,9 @@
 * indexOf를 이용해 ?를 기준으로 path와 queryString을 나누었음
 
 ### 요구사항 3 - post 방식으로 회원가입
-* 
+* Content-Length를 얻어오는 부분을 잘 모르겠음 header를 line단위로 읽을때마다 체크해줘야하나?
+* 예제에서는 post 방식의 body에서도 queryString처럼 줬지만 일반적으로는 어떻게 오는걸까 궁금함
+* GET방식이냐 POST방식이냐 처리를 위한 if문이 갈수록 복잡도가 늘어나고있음
 
 ### 요구사항 4 - redirect 방식으로 이동
 * 

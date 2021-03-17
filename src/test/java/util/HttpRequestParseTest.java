@@ -31,5 +31,42 @@ public class HttpRequestParseTest {
 		assertEquals("/user/create", requestPath);
 		assertEquals("userId=gosuljo&password=password&name=Gosuljo", params);
 	}
+	
+	@Test
+	public void parseMethod() {
+		String request = "GET /index.html HTTP/1.1";
+		String request2 = "POST / HTTP/1.1";
+		
+		assertEquals("GET", HttpRequestUtils.parseMethod(request));
+		assertEquals("POST", HttpRequestUtils.parseMethod(request2));
+	}
 
+	@Test
+	public void parsePath() {
+		String request = "/user/create?userId=gosuljo&password=password&name=Gosuljo";
+		String path = HttpRequestUtils.parseRequestPath(request);
+		assertEquals("/user/create", path);
+	}
+	
+	@Test
+	public void parsePathNone물음표() {
+		String request = "/user/create";
+		String path = HttpRequestUtils.parseRequestPath(request);
+		assertEquals("/user/create", path);
+	}
+	
+	@Test
+	public void parseQueryString() {
+		String request = "/user/create?userId=gosuljo&password=password&name=Gosuljo";
+		String params = HttpRequestUtils.parseParams(request);
+		assertEquals("userId=gosuljo&password=password&name=Gosuljo", params);
+	}
+	
+	@Test
+	public void parseQueryStringNone물음표() {
+		String request = "/user/create";
+		String params = HttpRequestUtils.parseParams(request);
+		assertEquals("", params);
+	}
+	
 }
