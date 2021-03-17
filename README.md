@@ -20,7 +20,7 @@
 * FileRead Test를 어떻게 해야할지 궁금하다 결과는 가변적 byte array인데...
 
 ### 요구사항 2 - get 방식으로 회원가입
-* 
+* indexOf를 이용해 ?를 기준으로 path와 queryString을 나누었음
 
 ### 요구사항 3 - post 방식으로 회원가입
 * 

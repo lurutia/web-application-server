@@ -19,5 +19,17 @@ public class HttpRequestParseTest {
 		assertEquals("/index.html", HttpRequestUtils.parseLocation(request));
 		assertEquals("/index.html", HttpRequestUtils.parseLocation(request2));
 	}
+	
+	@Test
+	public void requestParsePathAndQueryString() {
+		String request = "GET /user/create?userId=gosuljo&password=password&name=Gosuljo HTTP1.1";
+		String url = HttpRequestUtils.parseLocation(request);
+		int index = url.indexOf('?');
+		String requestPath = url.substring(0, index);
+		String params = url.substring(index+1);
+		
+		assertEquals("/user/create", requestPath);
+		assertEquals("userId=gosuljo&password=password&name=Gosuljo", params);
+	}
 
 }

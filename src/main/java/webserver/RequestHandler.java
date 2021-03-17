@@ -7,10 +7,12 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.Socket;
+import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import model.User;
 import util.HttpRequestUtils;
 
 public class RequestHandler extends Thread {
@@ -32,7 +34,19 @@ public class RequestHandler extends Thread {
         	BufferedReader br = new BufferedReader(new InputStreamReader(in));
         	String line = br.readLine();
         	String location = HttpRequestUtils.parseLocation(line);
-        	byte[] body = HttpRequestUtils.readFile(location);
+
+    		int index = location.indexOf('?');
+    		String requestPath = location.substring(0, index);
+    		String params = location.substring(index+1);
+    		Map<String, String> map = HttpRequestUtils.parseQueryString(params);
+    		String userId = map.get("userId");
+    		String name = map.get("name");
+    		String password = map.get("password");
+    		User user = new User(userId, password, name, "");
+    		
+    		log.info(user.toString());
+    		
+        	byte[] body = HttpRequestUtils.readFile(requestPath);
         	
             DataOutputStream dos = new DataOutputStream(out);
             response200Header(dos, body.length);
