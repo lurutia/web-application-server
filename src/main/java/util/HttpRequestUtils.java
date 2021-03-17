@@ -1,5 +1,8 @@
 package util;
 
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
 import java.util.Arrays;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -8,6 +11,25 @@ import com.google.common.base.Strings;
 import com.google.common.collect.Maps;
 
 public class HttpRequestUtils {
+    private static final String DEFAULT_LOCATION = "/index.html";
+    
+	public static String parseLocation(String url) {
+		String result;
+		String[] token = url.split(" ");
+		String location = token[1]; 
+		if("/".equals(location)) {
+			result = DEFAULT_LOCATION;
+    	} else {
+    		result = location;
+    	}
+		return result;
+	}
+	
+	public static byte[] readFile(String location) throws IOException {
+		File file = new File("./webapp" + location);
+    	return Files.readAllBytes(file.toPath());
+	}
+	
     /**
      * @param queryString은
      *            URL에서 ? 이후에 전달되는 field1=value1&field2=value2 형식임

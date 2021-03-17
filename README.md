@@ -15,7 +15,9 @@
 * 각 요구사항을 구현하는 것이 중요한 것이 아니라 구현 과정을 통해 학습한 내용을 인식하는 것이 배움에 중요하다. 
 
 ### 요구사항 1 - http://localhost:8080/index.html로 접속시 응답
-* 
+* BufferedReader 에 대해서 알게되었다.
+* Files.readAllBytes 에 대해서 알게되었다.
+* FileRead Test를 어떻게 해야할지 궁금하다 결과는 가변적 byte array인데...
 
 ### 요구사항 2 - get 방식으로 회원가입
 * 
