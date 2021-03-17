@@ -31,6 +31,7 @@ public class RequestHandler extends Thread {
                 connection.getPort());
 
         try (InputStream in = connection.getInputStream(); OutputStream out = connection.getOutputStream()) {
+        	DataOutputStream dos = new DataOutputStream(out);       		
             
         	BufferedReader br = new BufferedReader(new InputStreamReader(in));
         	String line = br.readLine();
@@ -58,14 +59,16 @@ public class RequestHandler extends Thread {
         		User user = new User(userId, password, name, email);
         		
         		body = user.toString().getBytes();
+        		response302Header(dos, body.length);
         	} else if(method.equals("GET")) {
             	String params = HttpRequestUtils.parseParams(location);
         		map = HttpRequestUtils.parseQueryString(params);
         		body = HttpRequestUtils.readFile(requestPath);
+        		
+        		response200Header(dos, body.length);
         	}
     		
-            DataOutputStream dos = new DataOutputStream(out);
-            response200Header(dos, body.length);
+            
             responseBody(dos, body);
         } catch (IOException e) {
             log.error(e.getMessage());
@@ -77,6 +80,19 @@ public class RequestHandler extends Thread {
             dos.writeBytes("HTTP/1.1 200 OK \r\n");
             dos.writeBytes("Content-Type: text/html;charset=utf-8\r\n");
             dos.writeBytes("Content-Length: " + lengthOfBodyContent + "\r\n");
+            dos.writeBytes("\r\n");
+        } catch (IOException e) {
+            log.error(e.getMessage());
+        }
+    }
+    
+    private void response302Header(DataOutputStream dos, int lengthOfBodyContent) {
+        try {
+            dos.writeBytes("HTTP/1.1 302 OK \r\n");
+            dos.writeBytes("Content-Type: text/html;charset=utf-8\r\n");
+            dos.writeBytes("Content-Length: " + lengthOfBodyContent + "\r\n");
+            dos.writeBytes("Location: /index.html\r\n");
+            
             dos.writeBytes("\r\n");
         } catch (IOException e) {
             log.error(e.getMessage());

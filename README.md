@@ -28,7 +28,8 @@
 * GET방식이냐 POST방식이냐 처리를 위한 if문이 갈수록 복잡도가 늘어나고있음
 
 ### 요구사항 4 - redirect 방식으로 이동
-* 
+* response 에서 302 status에 location을 주면 해당 url로 redirection 된다는것을 알게됨
+* 각각 상황에 맞게 header를 만들어줘야 하는데 리팩토링이 중요할듯
 
 ### 요구사항 5 - cookie
 * 
