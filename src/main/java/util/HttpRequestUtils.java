@@ -44,9 +44,9 @@ public class HttpRequestUtils {
 		return token[0];
     }
     
-	public static String parseLocation(String url) {
+	public static String getUrl(String line) {
+		String[] token = line.split(" ");
 		String result;
-		String[] token = url.split(" ");
 		String location = token[1]; 
 		if("/".equals(location)) {
 			result = DEFAULT_LOCATION;

@@ -12,6 +12,7 @@
 	</properties>
 
 	<dependencies>
+	
 		<!-- unit testing -->
 		<dependency>
 			<groupId>junit</groupId>

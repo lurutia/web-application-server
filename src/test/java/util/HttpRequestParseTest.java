@@ -16,14 +16,14 @@ public class HttpRequestParseTest {
 		String request = "GET /index.html HTTP/1.1";
 		String request2 = "GET / HTTP/1.1";
 		
-		assertEquals("/index.html", HttpRequestUtils.parseLocation(request));
-		assertEquals("/index.html", HttpRequestUtils.parseLocation(request2));
+		assertEquals("/index.html", HttpRequestUtils.getUrl(request));
+		assertEquals("/index.html", HttpRequestUtils.getUrl(request2));
 	}
 	
 	@Test
 	public void requestParsePathAndQueryString() {
 		String request = "GET /user/create?userId=gosuljo&password=password&name=Gosuljo HTTP1.1";
-		String url = HttpRequestUtils.parseLocation(request);
+		String url = HttpRequestUtils.getUrl(request);
 		int index = url.indexOf('?');
 		String requestPath = url.substring(0, index);
 		String params = url.substring(index+1);
