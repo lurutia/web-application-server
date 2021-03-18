@@ -88,8 +88,14 @@ public class RequestHandler extends Thread {
         		}
         		
         	} else if(method.equals("GET")) {
-            	String params = HttpRequestUtils.parseParams(url);
-            	queryStringMap = HttpRequestUtils.parseQueryString(params);
+        		if(url.startsWith("/create")) {
+        			String params = HttpRequestUtils.parseParams(url);
+        			queryStringMap = HttpRequestUtils.parseQueryString(params);
+        			User user = new User(queryStringMap.get("userId"), queryStringMap.get("password"), queryStringMap.get("name"), queryStringMap.get("email"));
+        			log.debug("User : {}", user);
+        			requestPath = "/index.html";
+        		}
+        		
             	if("/user/list".equals(requestPath)) {
             		System.out.println(cookieMap.keySet());
             	}
