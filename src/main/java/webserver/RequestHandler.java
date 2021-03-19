@@ -53,8 +53,12 @@ public class RequestHandler extends Thread {
         	while(!"".equals(line)) {
         		log.info(line);
         		line = br.readLine();
-        		contentLength = line.contains("Content-Length") ? HttpRequestUtils.parseContentLength(line) : contentLength;
-        		cookieMap = line.contains("Cookie") ? HttpRequestUtils.parseCookies(line) : cookieMap;
+        		if(line.contains("Content-Length")) {
+        			contentLength = HttpRequestUtils.parseContentLength(line);
+        		}
+        		if(line.contains("Cookie")) {
+        			cookieMap = HttpRequestUtils.parseCookies(line);
+        		}
         	}
 
         	String requestPath = HttpRequestUtils.parseRequestPath(url);
