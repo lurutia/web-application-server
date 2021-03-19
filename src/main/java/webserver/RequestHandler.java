@@ -72,11 +72,10 @@ public class RequestHandler extends Thread {
             		String password = queryStringMap.get("password");
             		User findUser = DataBase.findUserById(userId);
             		if(findUser.getPassword().equals(password)) {
-            			body = HttpRequestUtils.readFile("/index.html");
-            			responseHeader(dos, body.length, 302, new String[] {"Location: /index.html\r\n", "Set-Cookie: logined=true"});
+            			responseHeader(dos, 302, new String[] {"Location: /index.html\r\n", "Set-Cookie: logined=true"});
             		} else {
             			body = HttpRequestUtils.readFile("/user/login_failed.html");
-            			responseHeader(dos, body.length, 302, new String[] {"Location: /user/login_failed.html\r\n", "Set-Cookie: logined=false"});
+            			responseHeader(dos, 302, new String[] {"Location: /user/login_failed.html\r\n", "Set-Cookie: logined=false"});
             		}
         		} else if("/user/create".equals(requestPath)) {
             		String userId = queryStringMap.get("userId");
@@ -87,8 +86,7 @@ public class RequestHandler extends Thread {
             		
             		DataBase.addUser(user);
             		
-            		body = user.toString().getBytes();
-        			responseHeader(dos, body.length, 302, new String[] {"Location: /index.html\r\n"});
+        			responseHeader(dos, 302, new String[] {"Location: /index.html\r\n"});
         		}
         		
         	} else if(method.equals("GET")) {
@@ -105,7 +103,7 @@ public class RequestHandler extends Thread {
             	}
         		body = HttpRequestUtils.readFile(requestPath.contains(".html") ? requestPath : requestPath+".html");
         		
-        		responseHeader(dos, body.length, 200, null);
+        		responseHeader(dos, 200, new String[] {"Content-Length: " + body.length + "\r\n"});
         	}
     		
             
@@ -115,11 +113,10 @@ public class RequestHandler extends Thread {
         }
     }
 
-    private void responseHeader(DataOutputStream dos, int lengthOfBodyContent, int status, String[] headerValues) {
+    private void responseHeader(DataOutputStream dos, int status, String[] headerValues) {
     	try {
             dos.writeBytes("HTTP/1.1 " + status + " OK \r\n");
             dos.writeBytes("Content-Type: text/html;charset=utf-8\r\n");
-            dos.writeBytes("Content-Length: " + lengthOfBodyContent + "\r\n");
             if(headerValues == null) headerValues = new String[] {};
             for (String string : headerValues) {
 				dos.writeBytes(string);
