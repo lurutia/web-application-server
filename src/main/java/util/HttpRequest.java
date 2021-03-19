@@ -17,7 +17,8 @@ public class HttpRequest {
 	
 	InputStream in;
 	Map<String, String> map = new HashMap<String, String>();
-	Map<String, String> params = new HashMap<String, String>();;
+	Map<String, String> params = new HashMap<String, String>();
+	Map<String, String> cookies = new HashMap<String, String>();
 	
 	public HttpRequest(InputStream in) throws IOException {
 		this.in = in;
@@ -37,6 +38,7 @@ public class HttpRequest {
     		if(line.contains("Cookie")) {
     			String[] token = line.split(":");
     			map.put("cookies", token[1].trim());
+    			cookies.putAll(HttpRequestUtils.parseCookies(token[1].trim()));
     		}
     		if(line.contains("Connection")) {
     			String[] token = line.split(":");
@@ -50,8 +52,11 @@ public class HttpRequest {
     	params.putAll(HttpRequestUtils.parseQueryString(data));
 	}
 	
-	public Map<String, String> getHeader() throws IOException {
-		
+	public Map<String, String> getCookies() {
+		return cookies;
+	}
+	
+	public Map<String, String> getHeader() {
 		return map;
 	}
 	
