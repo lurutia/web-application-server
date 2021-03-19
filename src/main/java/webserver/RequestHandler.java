@@ -118,6 +118,9 @@ public class RequestHandler extends Thread {
         				sb.append("</table>");
         				body = sb.toString().getBytes();
         			}
+            	} else if(requestPath.endsWith(".css")) {
+            		body = HttpRequestUtils.readFile(requestPath);
+            		responseCssHeader(dos, 200, new String[] {"Content-Length: " + body.length + "\r\n"});
             	} else {
             		body = HttpRequestUtils.readFile(requestPath);
             		responseHeader(dos, 200, new String[] {"Content-Length: " + body.length + "\r\n"});
@@ -142,6 +145,20 @@ public class RequestHandler extends Thread {
     	try {
             dos.writeBytes("HTTP/1.1 " + status + " OK \r\n");
             dos.writeBytes("Content-Type: text/html;charset=utf-8\r\n");
+            if(headerValues == null) headerValues = new String[] {};
+            for (String string : headerValues) {
+				dos.writeBytes(string);
+			}
+            dos.writeBytes("\r\n");
+        } catch (IOException e) {
+            log.error(e.getMessage());
+        }
+    }
+    
+    private void responseCssHeader(DataOutputStream dos, int status, String[] headerValues) {
+    	try {
+            dos.writeBytes("HTTP/1.1 " + status + " OK \r\n");
+            dos.writeBytes("Content-Type: text/css;charset=utf-8\r\n");
             if(headerValues == null) headerValues = new String[] {};
             for (String string : headerValues) {
 				dos.writeBytes(string);
