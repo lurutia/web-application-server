@@ -13,12 +13,12 @@ import com.google.common.collect.Maps;
 public class HttpRequestUtils {
     private static final String DEFAULT_LOCATION = "/index.html";
     
-    public static int parseContentLength(String value) {
+    public static String parseContentLength(String value) {
     	if(value.contains("Content-Length")) {
-			return Integer.parseInt(value.split(":")[1].trim());
+			return value.split(":")[1].trim();
 		}
     	
-    	return 0;
+    	return "0";
     }
     
     public static String parseRequestPath(String url) {

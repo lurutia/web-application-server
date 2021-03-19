@@ -15,6 +15,7 @@ import org.slf4j.LoggerFactory;
 
 import db.DataBase;
 import model.User;
+import util.HttpRequest;
 import util.HttpRequestUtils;
 import util.IOUtils;
 
@@ -35,43 +36,22 @@ public class RequestHandler extends Thread {
         try (
         		InputStream in = connection.getInputStream();
         		OutputStream out = connection.getOutputStream();
-        		BufferedReader br = new BufferedReader(new InputStreamReader(in, "UTF-8"));
         	) {
-        	String line = br.readLine();
-        	if(line == null) {
-        		return;
-        	}
+        	HttpRequest httpRequest = new HttpRequest(in);
+        	if(httpRequest == null) return;
         	
+        	Map<String, String> headers = httpRequest.getHeader();
+        	Map<String, String> params = httpRequest.getParams();
+        	Map<String, String> cookies = HttpRequestUtils.parseCookies(headers.get("cookies"));
         	DataOutputStream dos = new DataOutputStream(out);       		
-            
-        	
-        	String method = HttpRequestUtils.parseMethod(line);
-        	String url = HttpRequestUtils.getUrl(line);
     		Map<String, String> queryStringMap;
-    		Map<String, String> cookieMap = null;
-        	int contentLength = 0;
-        	boolean logined = false;
         	
-        	while(!"".equals(line)) {
-        		log.info(line);
-        		line = br.readLine();
-        		if(line.contains("Content-Length")) {
-        			contentLength = HttpRequestUtils.parseContentLength(line);
-        		}
-        		if(line.contains("Cookie")) {
-        			String[] token = line.split(":");
-        			cookieMap = HttpRequestUtils.parseCookies(token[1].trim());
-        			logined = isLogin(cookieMap);
-        			log.debug("로그인여부" + logined + ", " + cookieMap.get("logined"));
-        		}
-        	}
+        	boolean logined = false;
 
-        	String requestPath = HttpRequestUtils.parseRequestPath(url);
     		byte[] body = null;
-        	if(method.equals("POST")) {
-        		if("/user/login".equals(requestPath)) {
-        			String data = IOUtils.readData(br, contentLength);
-            		Map<String, String> params = HttpRequestUtils.parseQueryString(data);
+        	if(headers.get("method").equals("POST")) {
+        		if("/user/login".equals(httpRequest.getPath())) {
+        			
             		String userId = params.get("userId");
             		String password = params.get("password");
             		User findUser = DataBase.findUserById(userId);
@@ -81,9 +61,9 @@ public class RequestHandler extends Thread {
             			body = HttpRequestUtils.readFile("/user/login_failed.html");
             			responseHeader(dos, 200, new String[] {"Set-Cookie: logined=false"});
             		}
-        		} else if("/user/create".equals(requestPath)) {
-        			String data = IOUtils.readData(br, contentLength);
-            		Map<String, String> params = HttpRequestUtils.parseQueryString(data);
+        		} else if("/user/create".equals(headers.get("path"))) {
+        			String data = IOUtils.readData(new BufferedReader(new InputStreamReader(in)), Integer.parseInt(headers.get("contentLength")));
+//            		Map<String, String> params = HttpRequestUtils.parseQueryString(data);
             		String userId = params.get("userId");
             		String name = params.get("name");
             		String password = params.get("password");
@@ -95,15 +75,15 @@ public class RequestHandler extends Thread {
         			responseHeader(dos, 302, new String[] {"Location: /index.html\r\n"});
         		}
         		
-        	} else if(method.equals("GET")) {
-        		if(url.startsWith("/create")) {
-        			String params = HttpRequestUtils.parseParams(url);
-        			queryStringMap = HttpRequestUtils.parseQueryString(params);
-        			User user = new User(queryStringMap.get("userId"), queryStringMap.get("password"), queryStringMap.get("name"), queryStringMap.get("email"));
+        	} else if(headers.get("method").equals("GET")) {
+        		if(headers.get("path").startsWith("/create")) {
+//        			String params = HttpRequestUtils.parseParams(headers.get("url"));
+//        			queryStringMap = HttpRequestUtils.parseQueryString(params);
+        			User user = new User(params.get("userId"), params.get("password"), params.get("name"), params.get("email"));
         			log.debug("User : {}", user);
-        			requestPath = "/index.html";
-        			body = HttpRequestUtils.readFile(requestPath.contains(".html") ? requestPath : requestPath+".html");
-        		} else if("/user/list".equals(requestPath)) {
+        			headers.put("path", "/index.html");
+        			body = HttpRequestUtils.readFile(headers.get("path").contains(".html") ? headers.get("path") : headers.get("path")+".html");
+        		} else if("/user/list".equals(headers.get("path"))) {
         			if(logined) {
         				Collection<User> users = DataBase.findAll();
         				StringBuilder sb = new StringBuilder();
@@ -118,11 +98,11 @@ public class RequestHandler extends Thread {
         				sb.append("</table>");
         				body = sb.toString().getBytes();
         			}
-            	} else if(requestPath.endsWith(".css")) {
-            		body = HttpRequestUtils.readFile(requestPath);
+            	} else if(headers.get("path").endsWith(".css")) {
+            		body = HttpRequestUtils.readFile(headers.get("path"));
             		responseCssHeader(dos, 200, new String[] {"Content-Length: " + body.length + "\r\n"});
             	} else {
-            		body = HttpRequestUtils.readFile(requestPath);
+            		body = HttpRequestUtils.readFile(headers.get("path"));
             		responseHeader(dos, 200, new String[] {"Content-Length: " + body.length + "\r\n"});
             	}
         	}
