@@ -21,7 +21,6 @@ public class RequestHandler extends Thread {
 
 
     private Socket connection;
-    private Map<String, Controller> controllers = new HashMap<String, Controller>();
 
     public RequestHandler(Socket connectionSocket) {
         this.connection = connectionSocket;
@@ -35,22 +34,18 @@ public class RequestHandler extends Thread {
         		InputStream in = connection.getInputStream();
         		OutputStream out = connection.getOutputStream();
         	) {
-        	controllers.put("/user/create", new CreateUserController());
-        	controllers.put("/user/list", new UserListController());
-        	controllers.put("/user/login", new UserLoginController());
-        	
         	HttpRequest httpRequest = new HttpRequest(in);
         	HttpResponse httpResponse = new HttpResponse(out);
 //        	if(httpRequest == null) return;
         	
-        	Map<String, String> headers = httpRequest.getHeader();
+//        	Map<String, String> headers = httpRequest.getHeader();
 
-        	Controller controller = controllers.get(httpRequest.getPath());
+        	Controller controller = RequestMapping.getController(httpRequest.getPath());
         	if(controller == null) {
-        		if(headers.get("path").endsWith(".css")) {
+        		if(httpRequest.getPath().endsWith(".css")) {
             		httpResponse.setHeader("Content-Type", "text/css;charset=utf-8\\r\\n");
             	}
-        		httpResponse.forward(headers.get("path"));
+        		httpResponse.forward(httpRequest.getPath());
         	} else {
         		controller.service(httpRequest, httpResponse);
         	}
