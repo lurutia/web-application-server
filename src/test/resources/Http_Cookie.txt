@@ -2,4 +2,5 @@ HTTP/1.1 302 OK
 Content-Type: text/html;charset=utf-8
 Location: /index.html
 Set-Cookie: logined=true
+Content-Type: text/html;charset=utf-8\r\n
 

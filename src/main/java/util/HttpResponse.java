@@ -23,7 +23,7 @@ public class HttpResponse {
 		map.put(key, value);
 	}
 	
-	public void forward(String file) throws IOException {
+	public void forward(String file) {
 		try {
 			byte[] body = HttpRequestUtils.readFile(file);
 			dos.writeBytes("HTTP/1.1 200 OK \r\n");
@@ -36,7 +36,7 @@ public class HttpResponse {
         }
 	}
 	
-	public void forward(byte[] bytes) throws IOException {
+	public void forward(byte[] bytes) {
 		try {
 //			byte[] body = HttpRequestUtils.readFile(file);
 			dos.writeBytes("HTTP/1.1 200 OK \r\n");
