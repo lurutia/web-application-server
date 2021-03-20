@@ -15,41 +15,49 @@ import org.slf4j.LoggerFactory;
 public class HttpRequest {
 	private static Logger log = LoggerFactory.getLogger(HttpRequest.class);
 	
-	InputStream in;
-	Map<String, String> map = new HashMap<String, String>();
+//	InputStream in;
+	Map<String, String> headers = new HashMap<String, String>();
 	Map<String, String> params = new HashMap<String, String>();
 	Map<String, String> cookies = new HashMap<String, String>();
+	RequestLine requestLine;
 	
-	public HttpRequest(InputStream in) throws IOException {
-		this.in = in;
-		BufferedReader br = new BufferedReader(new InputStreamReader(in, "UTF-8"));
-		String line = br.readLine();
-		if(line == null) return;
-    	map.put("method", HttpRequestUtils.parseMethod(line));
-    	map.put("url", HttpRequestUtils.getUrl(line));
-    	map.put("path", HttpRequestUtils.parseRequestPath(map.get("url")));
-    	
-    	params.putAll(HttpRequestUtils.parseQueryString(HttpRequestUtils.parseParams(map.get("url"))));
-    	
-    	while(!"".equals(line)) {
-    		if(line.contains("Content-Length")) {
-    			map.put("contentLength", HttpRequestUtils.parseContentLength(line));
-    		}
-    		if(line.contains("Cookie")) {
-    			String[] token = line.split(":");
-    			map.put("cookies", token[1].trim());
-    			cookies.putAll(HttpRequestUtils.parseCookies(token[1].trim()));
-    		}
-    		if(line.contains("Connection")) {
-    			String[] token = line.split(":");
-    			map.put("Connection", token[1].trim());
-    		}
-    		log.info(line);
-    		line = br.readLine();
-    	}
-    	
-    	String data = IOUtils.readData(br, getContentLength());
-    	params.putAll(HttpRequestUtils.parseQueryString(data));
+	public HttpRequest(InputStream in) {
+		try {
+			BufferedReader br = new BufferedReader(new InputStreamReader(in, "UTF-8"));
+			String line = br.readLine();
+			if(line == null) {
+				return;
+			}
+			
+			requestLine = new RequestLine(line);
+
+			while(!"".equals(line)) {
+	    		log.info(line);
+	    		line = br.readLine();
+	    		if(line.contains("Content-Length")) {
+	    			headers.put("contentLength", HttpRequestUtils.parseContentLength(line));
+	    		}
+	    		if(line.contains("Cookie")) {
+	    			String[] token = line.split(":");
+	    			headers.put("cookies", token[1].trim());
+	    			cookies.putAll(HttpRequestUtils.parseCookies(token[1].trim()));
+	    		}
+	    		if(line.contains("Connection")) {
+	    			String[] token = line.split(":");
+	    			headers.put("Connection", token[1].trim());
+	    		}
+	    	}
+	    	
+			HttpMethod httpMethod = HttpMethod.valueOf(getMethod());
+	    	if(httpMethod.isPost()) {
+	    		String data = IOUtils.readData(br, getContentLength());
+	    		params.putAll(HttpRequestUtils.parseQueryString(data));
+	    	} else {
+	    		params.putAll(requestLine.getParams());
+	    	}
+		} catch(Exception e) {
+			log.error(e.getMessage());
+		}
 	}
 	
 	public Map<String, String> getCookies() {
@@ -57,7 +65,7 @@ public class HttpRequest {
 	}
 	
 	public Map<String, String> getHeader() {
-		return map;
+		return headers;
 	}
 	
 	public Map<String ,String> getParams() {
@@ -69,24 +77,24 @@ public class HttpRequest {
 	}
 	
 	public int getContentLength() {
-		String contentLength = map.get("contentLength");
+		String contentLength = headers.get("contentLength");
 		if(contentLength == null) return 0;
 		return Integer.parseInt(contentLength);
 	}
 	
 	public String getHeader(String key) {
-		return map.get(key);
+		return headers.get(key);
 	}
 	
 	public String getUrl() {
-		return map.get("url");
+		return requestLine.getUrl();
 	}
 	
 	public String getMethod() {
-		return map.get("method");
+		return requestLine.getMethod();
 	}
 	
 	public String getPath() {
-		return map.get("path");
+		return requestLine.getPath();
 	}
 }
